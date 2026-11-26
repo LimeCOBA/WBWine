@@ -21,7 +21,6 @@ class RegistrationTests(TestCase):
                 data["csrfmiddlewaretoken"] = client.cookies["csrftoken"].value
                 self.assertEqual(client.post("/register/", data).status_code, 200)
                 self.assertEqual(User.objects.filter(username=data["username"]).count(), 1)
-<<<<<<< HEAD
 
 
     def test_registration_links_preserve_host_and_scheme(self):
@@ -36,5 +35,3 @@ class RegistrationTests(TestCase):
                         self.assertNotContains(response, link)
                     else:
                         self.assertContains(response, link)
-=======
->>>>>>> efe3e3ea7df955d5c5b458e21e424acd9812bff4

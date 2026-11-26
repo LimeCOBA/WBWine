@@ -3,10 +3,7 @@ from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import Group
 from django.db import IntegrityError, transaction
-<<<<<<< HEAD
 from django.http.request import split_domain_port
-=======
->>>>>>> efe3e3ea7df955d5c5b458e21e424acd9812bff4
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
 
@@ -28,7 +25,6 @@ def verify_application(application):
     return application.copy()
 
 
-<<<<<<< HEAD
 def cabinet_context(request):
     role = settings.SERVICE
     host, _ = split_domain_port(request.get_host())
@@ -36,14 +32,6 @@ def cabinet_context(request):
         "role_name": CABINETS[role][1],
         "simulated": role in VERIFICATION_REQUIRED,
         "other_roles": [(name, f"{request.scheme}://{host}:{port}/register/")
-=======
-def cabinet_context():
-    role = settings.SERVICE
-    return {
-        "role_name": CABINETS[role][1],
-        "simulated": role in VERIFICATION_REQUIRED,
-        "other_roles": [(name, f"http://127.0.0.1:{port}/register/")
->>>>>>> efe3e3ea7df955d5c5b458e21e424acd9812bff4
                         for key, (port, name) in CABINETS.items() if key != role],
     }
 
@@ -66,8 +54,4 @@ def register(request):
             else:
                 login(request, user)
                 return redirect("/")
-<<<<<<< HEAD
     return render(request, "register.html", {"form": form, **cabinet_context(request)})
-=======
-    return render(request, "register.html", {"form": form, **cabinet_context()})
->>>>>>> efe3e3ea7df955d5c5b458e21e424acd9812bff4

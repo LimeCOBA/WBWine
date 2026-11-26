@@ -53,7 +53,6 @@ def asset(request,name):
     return FileResponse(open(settings.ROOT/"services"/settings.SERVICE/"frontend/dist"/name,"rb"),content_type="text/css" if name.endswith("css") else "application/javascript")
 
 
-<<<<<<< HEAD
 class CabinetLoginView(LoginView):
     template_name = "login.html"
 
@@ -66,9 +65,6 @@ def auth_style(request):
 
 
 urlpatterns=[path("auth.css",auth_style),path("",index),path("api/",api),path("register/",register),path("login/",CabinetLoginView.as_view()),
-=======
-urlpatterns=[path("",index),path("api/",api),path("register/",register),path("login/",LoginView.as_view(template_name="login.html",extra_context=cabinet_context())),
->>>>>>> efe3e3ea7df955d5c5b458e21e424acd9812bff4
              path("logout/",LogoutView.as_view()),path("app.js",asset,{"name":"app.js"}),path("app.css",asset,{"name":"app.css"})]
 if settings.SERVICE=="partner":
     urlpatterns += [path("admin/",admin.site.urls),path("static/<path:path>",serve,{"insecure":True})]
