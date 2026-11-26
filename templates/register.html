@@ -1,0 +1,7 @@
+<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Регистрация · {{ role_name }}</title><link rel="stylesheet" href="/app.css">
+<main><h1>Регистрация · {{ role_name }}</h1>
+{% if simulated %}<p>В локальной версии проверка допуска имитируется. Доступ к кабинету откроется сразу после регистрации.</p>{% endif %}
+<form method="post">{% csrf_token %}<div>{{ form.as_p }}<button>Создать аккаунт</button></div></form>
+<p><a style="color:#612c71" href="/login/">Уже есть аккаунт · Войти</a></p>
+<h2>Регистрация в другой роли</h2><ul>{% for name, url in other_roles %}<li><a style="color:#612c71" href="{{ url }}">{{ name }}</a></li>{% endfor %}</ul></main></html>

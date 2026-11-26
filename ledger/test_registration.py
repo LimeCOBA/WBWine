@@ -1,0 +1,23 @@
+﻿from django.contrib.auth.models import User
+from django.test import Client, TestCase, override_settings
+from ledger.registration import CABINETS
+
+
+class RegistrationTests(TestCase):
+    def test_all_cabinets(self):
+        for role in CABINETS:
+            with self.subTest(role=role), override_settings(SERVICE=role):
+                client = Client(enforce_csrf_checks=True)
+                page = client.get("/register/")
+                self.assertEqual(page.status_code, 200)
+                data = dict(username="new_"+role, password1="Frost!79-maple", password2="Frost!79-maple", is_superuser=True, role="wild")
+                self.assertEqual(client.post("/register/", data).status_code, 403)
+                data["csrfmiddlewaretoken"] = client.cookies["csrftoken"].value
+                self.assertRedirects(client.post("/register/", data), "/")
+                user = User.objects.get(username=data["username"])
+                self.assertEqual(list(user.groups.values_list("name",flat=True)), [role])
+                self.assertFalse(user.is_staff or user.is_superuser)
+                self.assertEqual(client.get("/api/").status_code, 200)
+                data["csrfmiddlewaretoken"] = client.cookies["csrftoken"].value
+                self.assertEqual(client.post("/register/", data).status_code, 200)
+                self.assertEqual(User.objects.filter(username=data["username"]).count(), 1)
