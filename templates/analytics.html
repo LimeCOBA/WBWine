@@ -1,0 +1,46 @@
+﻿<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Аналитика · WB Wine</title>
+<link rel="stylesheet" href="/auth.css">
+<style>
+.metrics section{margin:0}.metrics strong{display:block;font-size:28px;margin-top:8px}
+.money{white-space:nowrap;font-variant-numeric:tabular-nums}.loss{color:#a12d49}
+details summary{cursor:pointer;font-weight:600}details form{margin-top:18px}
+</style>
+<header><b>WB <i>Wine</i></b><a href="/">Вернуться в кабинет</a><span>{{ request.user.username }}</span></header>
+<main>
+<div class="heading">
+<h1>Аналитика {% if seller %}продавца{% else %}ПВЗ{% endif %}</h1>
+<form method="get"><label>Отчётный месяц<input name="month" type="month" value="{{ month }}" required></label><button>Показать</button></form>
+</div>
+<p>{% if seller %}Прибыль по заказу = выручка − расходы − логистика по расчёту при оформлении. В отчёт входят заказы, оформленные в выбранном месяце.{% else %}Прибыль пункта выдачи = начисления − расходы за выбранный месяц. Суммы берутся из данных, которые вы внесли по каждому ПВЗ.{% endif %}</p>
+{% if rows %}
+<p>Заполнено для расчёта прибыли: {{ covered|length }} из {{ rows|length }}</p>
+<div class="grid metrics">
+<section>{% if seller %}Выручка{% else %}Начисления{% endif %}<strong class="money">{% if covered %}{{ totals.revenue|floatformat:"2g" }} ₽{% else %}—{% endif %}</strong></section>
+<section>Полные расходы<strong class="money">{% if covered %}{{ totals.expenses|floatformat:"2g" }} ₽{% else %}—{% endif %}</strong></section>
+<section>Прибыль<strong class="money{% if totals.profit < 0 %} loss{% endif %}">{% if covered %}{{ totals.profit|floatformat:"2g" }} ₽{% else %}—{% endif %}</strong></section>
+</div>
+<section><h2>{% if seller %}Экономика заказов{% else %}Экономика пунктов выдачи{% endif %}</h2>
+<div class="scroll"><table>
+<thead><tr><th>{% if seller %}Заказ{% else %}Пункт выдачи{% endif %}</th>
+{% if seller %}<th>Логистика, ₽</th>{% endif %}
+<th>{% if seller %}Выручка, ₽{% else %}Начисления, ₽{% endif %}</th>
+<th>{% if seller %}Расходы без логистики, ₽{% else %}Расходы, ₽{% endif %}</th><th>Прибыль, ₽</th></tr></thead>
+<tbody>{% for row in rows %}<tr><th scope="row">{{ row.label }}</th>
+{% if seller %}<td class="money">{{ row.logistics|floatformat:"2g"|default:"—" }}</td>{% endif %}
+{% if row.record %}
+<td class="money">{{ row.record.revenue|floatformat:"2g" }}</td>
+<td class="money">{{ row.record.expenses|floatformat:"2g" }}</td>
+<td class="money{% if row.profit < 0 %} loss{% endif %}">{{ row.profit|floatformat:"2g"|default:"—" }}</td>
+{% else %}<td colspan="3">Финансовые данные не внесены</td>{% endif %}
+</tr>{% endfor %}</tbody></table></div></section>
+<section><details {% if editing or not covered %}open{% endif %}><summary>Внести или изменить суммы</summary>
+<form method="post">{% csrf_token %}{{ form.non_field_errors }}
+{% for field in form %}<label>{{ field.label }}{{ field }}{{ field.errors }}</label>{% endfor %}
+<button>Сохранить</button></form></details></section>
+{% else %}<section>{% if seller %}За выбранный месяц нет оформленных заказов.{% else %}Сначала добавьте пункт выдачи в кабинете.{% endif %}</section>{% endif %}
+</main>
+</html>

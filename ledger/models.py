@@ -128,3 +128,19 @@ class Reservation(models.Model):
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=["parcel","node"],name="parcel_node")]
+
+
+class ParcelFinance(models.Model):
+    parcel = models.OneToOneField(Parcel, on_delete=models.CASCADE, related_name="finance")
+    revenue = models.DecimalField("Выручка, ₽", max_digits=14, decimal_places=2)
+    expenses = models.DecimalField("Себестоимость и прочие расходы, ₽", max_digits=14, decimal_places=2)
+
+
+class NodeFinance(models.Model):
+    node = models.ForeignKey(Node, on_delete=models.CASCADE)
+    month = models.DateField()
+    revenue = models.DecimalField("Начисления ПВЗ, ₽", max_digits=14, decimal_places=2)
+    expenses = models.DecimalField("Расходы ПВЗ, ₽", max_digits=14, decimal_places=2)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["node", "month"], name="node_finance_month")]

@@ -1,4 +1,5 @@
 import json
+from ledger.analytics import analytics
 from ledger.registration import register, cabinet_context
 from importlib import import_module
 from django.conf import settings
@@ -21,7 +22,8 @@ def authorized(user):
 @login_required(login_url="/login/")
 @ensure_csrf_cookie
 def index(request):
-    return HttpResponse('<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>WB Wine · '+settings.SERVICE+'</title><link rel="stylesheet" href="/app.css"><div id="root"></div><script src="/app.js"></script></html>')
+    analytics_link = '<aside style="position:fixed;right:1rem;bottom:1rem;background:white;padding:.6rem;border-radius:.5rem"><a href="/analytics/">Аналитика стоимости и прибыли</a></aside>' if settings.SERVICE in {"seller", "partner"} else ''
+    return HttpResponse('<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>WB Wine · '+settings.SERVICE+'</title><link rel="stylesheet" href="/app.css"><div id="root"></div>'+analytics_link+'<script src="/app.js"></script></html>')
 
 
 @require_http_methods(["GET","POST"])
@@ -66,5 +68,7 @@ def auth_style(request):
 
 urlpatterns=[path("auth.css",auth_style),path("",index),path("api/",api),path("register/",register),path("login/",CabinetLoginView.as_view()),
              path("logout/",LogoutView.as_view()),path("app.js",asset,{"name":"app.js"}),path("app.css",asset,{"name":"app.css"})]
+if settings.SERVICE in {"seller", "partner"}:
+    urlpatterns += [path("analytics/", analytics, name="analytics")]
 if settings.SERVICE=="partner":
     urlpatterns += [path("admin/",admin.site.urls),path("static/<path:path>",serve,{"insecure":True})]
